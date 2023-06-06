@@ -117,7 +117,7 @@ async function searchMorePhoto() {
   const { data } = await pixabayApi.fetchPhoto();
   console.log(data)
 
-  galleryEl.insertAdjacentHTML('beforeend', createPhotoCard(data.hits));
+  createPhotoCard(data.hits);
   gallery.refresh();
 
    if (data.hits.length < pixabayApi.per_page) {
