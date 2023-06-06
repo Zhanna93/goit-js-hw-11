@@ -52,7 +52,7 @@ async function searchGallery() {
  try {
   const { data } = await pixabayApi.fetchPhoto();;
 
-  console.log(data)
+  // console.log(data)
 
   if (data.totalHits === 0) {
    Notiflix.Notify.failure(
