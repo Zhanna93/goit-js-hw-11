@@ -5,31 +5,32 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const formSearchEl = document.querySelector('.search-form');
 const galleryEl = document.querySelector('.gallery');
-const loadMoreBtnEl = document.querySelector('.load-more');
-// const guard = document.querySelector(".guard");
+// const loadMoreBtnEl = document.querySelector('.load-more');
+const guard = document.querySelector(".guard");
+const loader = document.querySelector(".loader");
 
 const pixabayApi = new PixabayAPI();
 
 let gallery = new SimpleLightbox('.gallery a');
-// let pageToFetch = 1;
-// let queryToFetch = "";
+let pageToFetch = 1;
+let queryToFetch = "";
 
-// const observer = new IntersectionObserver(
-//   (entries) => {
-//     entries.forEach((entry) => {
-//       if (entry.isIntersecting) {
-//         searchGallery(queryToFetch, pageToFetch);
-//       }
-//     });
-//   },
-//   { rootMargin: "200px" }
-// );
+const observer = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        searchGallery(queryToFetch, pageToFetch);
+      }
+    });
+  },
+  { rootMargin: "200px" }
+);
 
 
 const handleSearchFoto = async ev => {
   ev.preventDefault();
   galleryEl.innerHTML = '';
-  loadMoreBtnEl.classList.add('is-hidden');
+  // loadMoreBtnEl.classList.add('is-hidden');
   pixabayApi.page = 1;
 
   const serchItemEl = ev.target.elements['searchQuery'].value.trim();
@@ -47,6 +48,7 @@ const handleSearchFoto = async ev => {
 };
 
 async function searchGallery() {
+ loader.classList.remove("is-hidden");
  try {
   const { data } = await pixabayApi.fetchPhoto();;
 
@@ -62,11 +64,12 @@ async function searchGallery() {
   createPhotoCard(hits);
   Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
   gallery.refresh();
-  if (data.totalHits > pixabayApi.per_page) {
-      loadMoreBtnEl.classList.remove('is-hidden');
-    }
-  // pixabayApi.page += 1;
-  // observer.observe(guard);
+  // if (data.totalHits > pixabayApi.per_page) {
+  //     // loadMoreBtnEl.classList.remove('is-hidden');
+  //   }
+  loader.classList.add("is-hidden");
+  pixabayApi.page += 1;
+  observer.observe(guard);
  } catch (error) {
   console.log(error);
  }
@@ -103,36 +106,38 @@ function createPhotoCard(hits) {
     </div>
   </a>`
  }).join('');
- galleryEl.insertAdjacentHTML('afterbegin', murkup);
+ galleryEl.insertAdjacentHTML('beforeend', murkup);
 }
 
-function handleLoadMoreBtnClick() {
-  pixabayApi.page += 1;
-  searchMorePhoto();
-}
+// function handleLoadMoreBtnClick() {
+//   pixabayApi.page += 1;
+//   searchMorePhoto();
+// }
 
 
-async function searchMorePhoto() {
- try {
-  const { data } = await pixabayApi.fetchPhoto();
-  console.log(data)
+// async function searchMorePhoto() {
+//  pixabayApi.page += 1;
+//  try {
+//   const { data } = await pixabayApi.fetchPhoto();
+//   console.log(data)
 
-  createPhotoCard(data.hits);
-  gallery.refresh();
+//   createPhotoCard(data.hits);
+//   gallery.refresh();
 
-   if (data.hits.length < pixabayApi.per_page) {
-      loadMoreBtnEl.classList.add('is-hidden');
-      return Notiflix.Notify.info(
-        "We're sorry, but you've reached the end of search results."
-      );
-    }
-  } catch (error) {
-    console.log(error);
-  }
-}
+//    if (data.hits.length < pixabayApi.per_page) {
+//       loadMoreBtnEl.classList.add('is-hidden');
+//       return Notiflix.Notify.info(
+//         "We're sorry, but you've reached the end of search results."
+//       );
+//     }
+//   } catch (error) {
+//     console.log(error);
+//   }
+// }
 
 formSearchEl.addEventListener('submit', handleSearchFoto);
-loadMoreBtnEl.addEventListener('click', handleLoadMoreBtnClick);
+// loadMoreBtnEl.addEventListener('click', handleLoadMoreBtnClick);
+
 
 
 
